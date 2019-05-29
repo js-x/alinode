@@ -1,0 +1,14 @@
+{
+  "name": "@js-x/alinode",
+  "version": "1.0.0",
+  "description": "alinode all in one",
+  "bin": {
+    "install-alinode": "./bin/install-alinode.sh"
+  },
+  "scripts": {
+    "test": "install-alinode",
+    "postinstall": "install-alinode"
+  },
+  "author": "+v",
+  "license": "MIT"
+}
