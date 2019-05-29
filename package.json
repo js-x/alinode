@@ -5,6 +5,9 @@
   "bin": {
     "install-alinode": "./bin/install-alinode.sh"
   },
+  "files": [
+    "bin"
+  ],
   "scripts": {
     "test": "install-alinode",
     "postinstall": "install-alinode"
