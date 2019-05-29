@@ -22,7 +22,7 @@ alinode_download() {
                            -e 's/-C - /-c /')
     wget $ARGS
   else
-    echo "请安装wget命令"
+    echo "Please install 'wget' command"
   fi
 }
 
@@ -32,7 +32,7 @@ alinode_pre_install() {
     echo
   else
     echo
-    echo '使用方法:'
+    echo 'Usage:'
     echo '  bash -i alinode_all.sh'
     exit
   fi
@@ -42,16 +42,16 @@ alinode_pre_install() {
   elif alinode_has "wget"; then
     echo
   else
-    echo >&2 "请安装命令 git, wget, unzip, 然后重新执行 bash -i alinode_all.sh "
+    echo >&2 "Please install 'git', 'wget', 'unzip' command, then run 'bash -i alinode_all.sh' "
     echo
     exit 1
   fi
 }
 
-#参数名称 默认值 参数说明
+# Param Default Intro
 alinode_read_para() {
   echo $3  >&2
-  echo 请输入 $1 [按回车接受默认值: $2] >&2
+  echo Please input $1 [default: $2] >&2
 
   read PARA
   if [ "$PARA" =  "" ]; then
@@ -59,7 +59,7 @@ alinode_read_para() {
   else
     VAR=$PARA
   fi
-  echo "$1 设置为: $VAR"  >&2
+  echo "$1 set: $VAR"  >&2
   echo $VAR
 }
 
@@ -81,14 +81,14 @@ alinode_read_array_para() {
 }
 
 alinode_install_tnvm() {
-  echo '安装 tnvm...'
+  echo 'Install tnvm...'
   echo
-  echo "您的服务器来自阿里云ECS (y/n)?"
+  echo "Use Aliyun ECS server (y/n)?"
   read IS_ECS
   if [ "$IS_ECS" = y -o "$IS_ECS" = Y -o "$IS_ECS" = "" ]; then
     echo
   else
-    echo '您可以试用阿里云ECS以便享受更快的安装速度哦......'
+    echo 'BTW, you can try Aliyun ECS for better install speed......'
     echo
   fi
 
@@ -101,7 +101,7 @@ alinode_install_tnvm() {
     TNVM_SOURCE="https://raw.githubusercontent.com/aliyun-node/tnvm/master/install.sh"
     alinode_download -s "$TNVM_SOURCE" -o "./install.sh"
   fi
-  # bashrc的问题,需要先把这两个删掉
+  # issue of bashrc, require delete
   sed -i '/exec bash/d' ./install.sh
   sed -i '/source "$NVM_PROFILE"/d' ./install.sh
 
@@ -113,11 +113,11 @@ alinode_install_tnvm() {
 }
 
 alinode_install_alinode() {
-  PACKAGE=`alinode_read_para '需要安装的二进制包 可选项: alinode/node/iojs' alinode ""`
+  PACKAGE=`alinode_read_para 'packages optional: alinode/node/iojs' alinode ""`
   echo
-  echo '您的选择:' $PACKAGE
-  echo '请选择具体版本:'
-  CHOICES=`tnvm lookup|awk '{print $6 "--基于node-" $9}'`
+  echo 'selected:' $PACKAGE
+  echo 'Please select version:'
+  CHOICES=`tnvm lookup|awk '{print $6 "--base on node-" $9}'`
   echo
   for CHOICE in $CHOICES
     do
@@ -125,31 +125,31 @@ alinode_install_alinode() {
       DEFAULT_PACKAGE=$CHOICE
   done
 
-  # 去掉颜色信息
+  # remove color information
   DEFAULT_PACKAGE=`echo $DEFAULT_PACKAGE|sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"|awk -F "--" '{print $1}'`
 
-  INSTALL_PACKAGE=`alinode_read_para "$PACKAGE 具体版本(例如alinode-v1.0.0)" $DEFAULT_PACKAGE "" `
+  INSTALL_PACKAGE=`alinode_read_para "$PACKAGE version(e.g, alinode-v1.0.0)" $DEFAULT_PACKAGE "" `
   tnvm install $INSTALL_PACKAGE
   tnvm use $INSTALL_PACKAGE
 
   if [ "$PACKAGE" = "alinode" ]; then
-    echo alinode 内部版本: `node -p "process.alinode"` 对应的node版本: `node -v`
+    echo alinode inner version: `node -p "process.alinode"` node version: `node -v`
   else
-    echo $PACKAGE 版本: `node -v`
+    echo $PACKAGE version: `node -v`
   fi
 }
 
 alinode_install_cnpm() {
   if ! alinode_has "cnpm"; then
     echo
-    echo "安装 cnpm以实现npm加速..."
+    echo "Install cnpm for better speed..."
     npm install -g cnpm --registry=http://registry.npm.taobao.org
   fi
 }
 
 alinode_install_agenthub() {
   echo
-  echo '安装 agenthub...'
+  echo 'Install agenthub...'
   if alinode_has "cnpm"; then
     cnpm install @alicloud/agenthub -g
   else
@@ -158,60 +158,51 @@ alinode_install_agenthub() {
 }
 
 config_hint_id_token() {
-  echo '您可以通过下述方式获取您的应用Id和应用Token:'
+  echo 'To get your APP Id and Token:'
   echo
-  echo '如果是第一次使用'
-  echo '打开 https://node.console.aliyun.com/'
-  echo '通过阿里云账号登陆'
-  echo '点击用户名'
-  echo '添加应用->输入您的应用名->下一步'
-  echo '获得 应用Id 和 应用Token'
-  echo
-  echo '如果您已有应用Id和Token'
-  echo '登陆后点击应用名->右侧应用设置'
-  echo '获得 应用Id 和 应用Token'
+  echo 'visit https://node.console.aliyun.com/'
 }
 
 config_hint_logdir() {
-  echo '设置alinode log目录...'
+  echo 'set alinode log dir...'
   echo
-  echo -e '\e[31m注意: ***必须与启动应用时的环境变量NODE_LOG_DIR相同***\e[0m'
-  echo -e '\e[31m      ***若不设置NODE_LOG_DIR,那么使用 /tmp/ 目录  ***\e[0m'
+  echo -e '\e[31mNotice: ***Must be same with NODE_LOG_DIR of start up***\e[0m'
+  echo -e '\e[31m      ***Use /tmp/ dir if without NODE_LOG_DIR set  ***\e[0m'
 }
 
 config_hint_error_log() {
-  echo '请输入error_log目录'
-  echo -e '\e[31merror_log是您的应用自己输出的日志，带有stack信息\e[0m'
+  echo 'Please input error_log dir'
+  echo -e '\e[31merror_log is your application log，with stack information\e[0m'
   echo -e '\e[31m格式: /path/to/your/error_log/error.#YYYY-#MM-#DD.log\e[0m'
   echo -e '\e[31m多于1个error_log，以空格分隔\e[0m'
-  echo -e '\e[31m不要此项功能，回车跳过\e[0m'
+  echo -e '\e[31mIgnore with enter\e[0m'
 }
 
 config_hint_packages() {
-  echo '请输入dependency目录'
-  echo -e '\e[31mdependency是您的应用依赖包信息\e[0m'
-  echo -e '\e[31m格式: /path/to/your/error_log/yourdep.json\e[0m'
-  echo -e '\e[31m多于1个，以空格分隔\e[0m'
-  echo -e '\e[31m不要此项功能，回车跳过\e[0m'
+  echo 'Please input dependency dir'
+  echo -e '\e[31mdependency is your denpendency information\e[0m'
+  echo -e '\e[31mFormat: /path/to/your/error_log/yourdep.json\e[0m'
+  echo -e '\e[31mSplit with space if more than 1\e[0m'
+  echo -e '\e[31mIgnore with enter\e[0m'
 }
 
 alinode_configure_agenthub() {
   echo
-  echo '配置agenthub...'
+  echo 'configure agenthub...'
   echo
   config_hint_id_token
   echo
-  echo '请输入应用ID'
+  echo 'Please input your App ID'
   read APP_ID
-  echo '您的应用Id: ' $APP_ID
+  echo 'Your App ID: ' $APP_ID
   echo
-  echo '请输入应用Token'
+  echo 'Please input App Token'
   read APP_TOKEN
-  echo '您的应用Token: ' $APP_TOKEN
+  echo 'App Token: ' $APP_TOKEN
   echo
 
   config_hint_logdir
-  LOG_DIR=`alinode_read_para "alinode log 目录" "/tmp/" ""`
+  LOG_DIR=`alinode_read_para "alinode log dir " "/tmp/" ""`
 
   config_hint_error_log
   err=`alinode_read_array_para`
@@ -220,7 +211,7 @@ alinode_configure_agenthub() {
   dep=`alinode_read_array_para`
 
   DEFAULT_CFG_DIR=`pwd`
-  CFG_DIR=`alinode_read_para "配置文件目录" $DEFAULT_CFG_DIR  ""`
+  CFG_DIR=`alinode_read_para "Configuration dir " $DEFAULT_CFG_DIR  ""`
   CFG_PATH=$CFG_DIR'/yourconfig.json'
   touch $CFG_PATH
   > $CFG_PATH
@@ -238,13 +229,13 @@ alinode_configure_agenthub() {
   echo   } >> $CFG_PATH
 
   echo
-  echo 您的配置如下,您可以手工修改$CFG_PATH来改变配置
+  echo Your configuration below, you can modify by change $CFG_PATH
   cat $CFG_PATH
 }
 
 alinode_post_install() {
   echo
-  echo '通过下面命令启动agenthub, 快乐享受alinode服务':
+  echo 'to start agenthub with below, enjoy alinode':
   echo
   echo '    nohup agenthub' $CFG_PATH '&'
   echo
